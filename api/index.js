@@ -18,7 +18,7 @@ export default async function getWeather(req, res) {
                 return;
             }
 
-            response.text();
+            return response.text();
         }).then((rawHtml) => {
             // parse html
             const htmlDocument = new JSDOM(rawHtml);
@@ -28,44 +28,42 @@ export default async function getWeather(req, res) {
             let airQualityIndex, city, description, dewPoint, feelsLike, high, humidity, low, moonPhase, pressure, rainChance, sunrise, sunset, temperature, uvIndex, visibility, windDirection, windSpeed;
 
             // helper functions for getting elements
-            const getElementFromTestId = (testId, parent) => {
-                parent ??= htmlDocument.window.document;
-
+            const getElementFromTestId = (testId, parent = htmlDocument.window.document) => {
                 return parent.querySelector(`[data-testid="${testId}"]`);
             }
 
-            const getAllElementsFromTestId = (testId, parent) => {
-                parent ??= htmlDocument.window.document;
+            const getAllElementsFromTestId = (testId, parent = htmlDocument.window.document) => {
                 return parent.querySelectorAll(`[data-testid="${testId}"]`);
             }
 
             // air quality index
-            airQualityIndex = parseInt(getElementFromTestId("DonutChartValue", getElementFromTestId("AirQualityCard")).innerHTML, 10);
+            airQualityIndex = parseInt(getElementFromTestId("DonutChartValue", getElementFromTestId("AirQualityCard")).textContent, 10);
 
             // city
-            city = getElementFromTestId("CurrentConditionsContainer").getElementsByTagName("h1")[0].innerText;
+            city = getElementFromTestId("CurrentConditionsContainer").getElementsByTagName("h1")[0].textContent;
 
             // description
-            description = getElementFromTestId("wxPhrase").innerText;
+            description = getElementFromTestId("wxPhrase").textContent;
 
             // feels like
-            description = parseInt(getElementFromTestId("TemperatureValue", getElementFromTestId("FeelsLikeSection")).innerText, 10);
+            feelsLike = parseInt(getElementFromTestId("TemperatureValue", getElementFromTestId("FeelsLikeSection")).textContent, 10);
 
             // rain chance
-            rainChance = parseInt(getElementFromTestId("SegmentPrecipPercentage", getElementFromTestId("DailyWeatherModule")).innerText.split("\n")[1], 10) / 100;
+            rainChance = parseInt(getElementFromTestId("SegmentPrecipPercentage", getElementFromTestId("DailyWeatherModule")).textContent.substring(18), 10) / 100;
 
+            // TODO: figure out date parsing for sunrise + sunset
             // sunrise
-            sunrise = getElementFromTestId("SunriseValue").innerText;
+            sunrise = new Date(getElementFromTestId("SunriseValue").textContent.substring(8));
 
             // sunset
-            sunset = getElementFromTestId("SunsetValue").innerText;
+            sunset = new Date(getElementFromTestId("SunsetValue").textContent.substring(6));
 
             // temperature, high, low
             let temperatureElements = getAllElementsFromTestId("TemperatureValue", getElementFromTestId("CurrentConditionsContainer"));
 
-            temperature = parseInt(temperatureElements[0].innerText);
-            high = parseInt(temperatureElements[1].innerText);
-            low = parseInt(temperatureElements[2].innerText);
+            temperature = parseInt(temperatureElements[0].textContent);
+            high = parseInt(temperatureElements[1].textContent);
+            low = parseInt(temperatureElements[2].textContent);
 
             // today's details WeatherDetailsLabels
             const todaysDetailsLabels = getAllElementsFromTestId("WeatherDetailsLabel", getElementFromTestId("TodaysDetailsModule"));
@@ -75,45 +73,45 @@ export default async function getWeather(req, res) {
                 // get sibling wxdata element
                 const valueElement = getElementFromTestId("wxData", todaysDetailsLabels[i].parentNode);
 
-                switch (todaysDetailsLabels[i].innerText) {
+                switch (todaysDetailsLabels[i].textContent) {
                     case "Humidity": {
 
-                        humidity = parseInt(valueElement.innerText, 10) / 100;
+                        humidity = parseInt(valueElement.textContent, 10) / 100;
                         break;
                     }
 
                     case "Pressure": {
-                        pressure = parseFloat(valueElement.innerText, 10)
+                        pressure = parseFloat(valueElement.textContent.substring(8), 10);
                         break;
                     }
 
                     case "Visibility": {
-                        visibility = parseInt(valueElement.innerText, 10);
+                        visibility = parseInt(valueElement.textContent, 10);
                         break;
                     }
 
                     case "Wind": {
                         // wind speed
-                        windSpeed = parseInt(valueElement.innerText, 10);
+                        windSpeed = parseInt(valueElement.textContent.substring(14), 10);
 
                         // wind direction
-                        windDirectionElement = getElementFromTestId("Icon", valueElement);
+                        let windDirectionElement = getElementFromTestId("Icon", valueElement);
                         windDirection = parseFloat(windDirectionElement.style.transform.substring(7));
                         break;
                     }
 
                     case "Dew Point": {
-                        dewPoint = parseInt(valueElement.innerText, 10);
+                        dewPoint = parseInt(valueElement.textContent, 10);
                         break;
                     }
 
                     case "UV Index": {
-                        uvIndex = parseInt(valueElement.innerText, 10)
+                        uvIndex = parseInt(valueElement.textContent, 10)
                         break;
                     }
 
                     case "Moon Phase": {
-                        moonPhase = valueElement.innerText;
+                        moonPhase = valueElement.textContent;
                         break;
                     }
                 }
