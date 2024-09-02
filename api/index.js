@@ -30,11 +30,11 @@ export default async function getWeather(req, res) {
             // helper functions for getting elements
             const getElementFromTestId = (testId, parent = htmlDocument.window.document) => {
                 return parent.querySelector(`[data-testid="${testId}"]`);
-            }
+            };
 
             const getAllElementsFromTestId = (testId, parent = htmlDocument.window.document) => {
                 return parent.querySelectorAll(`[data-testid="${testId}"]`);
-            }
+            };
 
             // air quality index
             airQualityIndex = parseInt(getElementFromTestId("DonutChartValue", getElementFromTestId("AirQualityCard")).textContent, 10);
@@ -49,17 +49,26 @@ export default async function getWeather(req, res) {
             feelsLike = parseInt(getElementFromTestId("TemperatureValue", getElementFromTestId("FeelsLikeSection")).textContent, 10);
 
             // rain chance
-            rainChance = parseInt(getElementFromTestId("SegmentPrecipPercentage", getElementFromTestId("DailyWeatherModule")).textContent.substring(18), 10) / 100;
+
+            // get first rain chance element
+            const firstRainElement = getElementFromTestId("SegmentPrecipPercentage", getElementFromTestId("DailyWeatherModule"));
+
+            // extract number, parse, and convert from percentage to decimal
+            rainChance = parseInt(firstRainElement.textContent.match(/\d+/)[0], 10) / 100;
 
             // TODO: figure out date parsing for sunrise + sunset
+            const timeStringToDate = (timeString) => {
+                return new Date(new Date().toDateString() + " " + timeString);
+            };
+
             // sunrise
-            sunrise = new Date(getElementFromTestId("SunriseValue").textContent.substring(8));
+            sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.substring(8)).toISOString();
 
             // sunset
-            sunset = new Date(getElementFromTestId("SunsetValue").textContent.substring(6));
+            sunset = timeStringToDate(getElementFromTestId("SunsetValue").textContent.substring(6)).toISOString();
 
             // temperature, high, low
-            let temperatureElements = getAllElementsFromTestId("TemperatureValue", getElementFromTestId("CurrentConditionsContainer"));
+            const temperatureElements = getAllElementsFromTestId("TemperatureValue", getElementFromTestId("CurrentConditionsContainer"));
 
             temperature = parseInt(temperatureElements[0].textContent);
             high = parseInt(temperatureElements[1].textContent);
