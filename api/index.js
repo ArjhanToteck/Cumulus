@@ -1,5 +1,4 @@
 const { JSDOM } = require("jsdom");
-const WeatherData = require("./WeatherData");
 
 export default async function getWeather(req, res) {
     const { searchParams } = new URL(process.env.NEXT_PUBLIC_PROCESSING_SERVER + req.url);
@@ -25,7 +24,7 @@ export default async function getWeather(req, res) {
 
             // declare variables
             // TODO: finish getting all of these variables from scraping data
-            let airQualityIndex, city, description, dewPoint, feelsLike, high, humidity, low, moonPhase, pressure, rainChance, sunrise, sunset, temperature, uvIndex, visibility, windDirection, windSpeed;
+            let airQualityIndex, city, description, dewPoint, feelsLike, high, humidity, low, moonPhase, pressure, rainChance, sunrise, sunset, temperature, timeUpdated, timezone, uvIndex, visibility, windDirection, windSpeed;
 
             // helper functions for getting elements
             const getElementFromTestId = (testId, parent = htmlDocument.window.document) => {
@@ -56,16 +55,23 @@ export default async function getWeather(req, res) {
             // extract number, parse, and convert from percentage to decimal
             rainChance = parseInt(firstRainElement.textContent.match(/\d+/)[0], 10) / 100;
 
-            // TODO: figure out date parsing for sunrise + sunset
+            // date stuff
             const timeStringToDate = (timeString) => {
                 return new Date(new Date().toDateString() + " " + timeString);
             };
 
+            // time updated and timezone
+            const timeUpdatedString = getElementFromTestId("CurrentConditionsContainer").getElementsByTagName("span")[0].textContent;
+            const splitTimeUpdatedString = timeUpdatedString.split(" ");
+
+            timezone = splitTimeUpdatedString[splitTimeUpdatedString.length - 1];
+            timeUpdated = timeStringToDate(timeUpdatedString.split("As of ")[1]).toISOString();
+
             // sunrise
-            sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.substring(8)).toISOString();
+            sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.substring(8) + " " + timezone).toISOString();
 
             // sunset
-            sunset = timeStringToDate(getElementFromTestId("SunsetValue").textContent.substring(6)).toISOString();
+            sunset = timeStringToDate(getElementFromTestId("SunsetValue").textContent.substring(6) + " " + timezone).toISOString();
 
             // temperature, high, low
             const temperatureElements = getAllElementsFromTestId("TemperatureValue", getElementFromTestId("CurrentConditionsContainer"));
@@ -127,6 +133,6 @@ export default async function getWeather(req, res) {
             }
 
             // send response json
-            res.status(200).json({ airQualityIndex, city, description, dewPoint, feelsLike, high, humidity, latitude, longitude, low, moonPhase, pressure, rainChance, sunrise, sunset, temperature, uvIndex, visibility, windDirection, windSpeed });
+            res.status(200).json({ airQualityIndex, city, description, dewPoint, feelsLike, high, humidity, latitude, longitude, low, moonPhase, pressure, rainChance, sunrise, sunset, temperature, timeUpdated, timezone, uvIndex, visibility, windDirection, windSpeed });
         });
 }
