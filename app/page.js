@@ -1,6 +1,7 @@
 import CodeBlock from "/components/CodeBlock.js";
 
 export default function page() {
+
 	return (
 		<main>
 			<section>
@@ -8,6 +9,8 @@ export default function page() {
 				<p>Cumulus is a free and simple weather API without the need for an API key. I originally made this a few years ago, but it was terrible. Hopefully this works a little better.</p>
 
 				<h2>Demo</h2>
+
+				The weather in Munich, Germany is
 
 				<h2>Endpoint</h2>
 				<p>Simply make an HTTP request to {process.env.NEXT_PUBLIC_SOCKETIO_SERVER}/api/projects/cumulus?latitude=LATITUDE&longitude=LONGITUDE and read the data as a JSON. Obviously, make sure to replace LATITUDE and LONGITUDE with an actual valid latitude and longitude.</p>
