@@ -1,6 +1,6 @@
 import CodeBlock from "/components/CodeBlock.js";
 
-export default function page() {
+export default function Page() {
 
 	return (
 		<main>
