@@ -1,4 +1,4 @@
-import CodeBlock from "/components/CodeBlock.js";
+import CodeBlock from "/src/components/CodeBlock.js";
 
 export default function Page() {
 
