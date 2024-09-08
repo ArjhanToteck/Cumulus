@@ -64,6 +64,7 @@ export default async function getWeather(req, res) {
 			const timeUpdatedString = getElementFromTestId("CurrentConditionsContainer").getElementsByTagName("span")[0].textContent;
 			const splitTimeUpdatedString = timeUpdatedString.split(" ");
 
+			// TODO: find a better way to get the timezone, these abbreviations don't always work, for example, in Munich
 			timezone = splitTimeUpdatedString[splitTimeUpdatedString.length - 1];
 			timeUpdated = timeStringToDate(timeUpdatedString.split("As of ")[1]).toISOString();
 
