@@ -1,4 +1,5 @@
 const { JSDOM } = require("jsdom");
+const { find } = require("geo-tz/now");
 
 export default async function getWeather(req, res) {
 	const { searchParams } = new URL(process.env.NEXT_PUBLIC_PROCESSING_SERVER + req.url);
@@ -55,24 +56,32 @@ export default async function getWeather(req, res) {
 			// extract number, parse, and convert from percentage to decimal
 			rainChance = parseInt(firstRainElement.textContent.match(/\d+/)[0], 10) / 100;
 
-			// date stuff
+			// time stuff
+
+			// timezone
+			timezone = find(latitude, longitude)[0];
+
+
+			// convert time to a usable format with date and timezone
 			const timeStringToDate = (timeString) => {
-				return new Date(new Date().toDateString() + " " + timeString);
+				return new Date(`${new Date().toDateString()} ${timeString} (${timezone}) `);
 			};
 
-			// time updated and timezone
-			const timeUpdatedString = getElementFromTestId("CurrentConditionsContainer").getElementsByTagName("span")[0].textContent;
-			const splitTimeUpdatedString = timeUpdatedString.split(" ");
+			// time updated
+			let timeUpdatedString = getElementFromTestId("CurrentConditionsContainer").getElementsByTagName("span")[0].textContent;
 
-			// TODO: find a better way to get the timezone, these abbreviations don't always work, for example, in Munich
-			timezone = splitTimeUpdatedString[splitTimeUpdatedString.length - 1];
-			timeUpdated = timeStringToDate(timeUpdatedString.split("As of ")[1]).toISOString();
+			// remove "As of" and timezone abbreviation from timeUpdatedString
+			timeUpdatedString = timeUpdatedString.match(/(\d{1,2}:\d{2}\s?[ap]m)/i)[0];
+
+			// convert to date
+			timeUpdated = timeStringToDate(timeUpdatedString).toISOString();
 
 			// sunrise
-			sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.substring(8) + " " + timezone).toISOString();
+			console.log(timeUpdatedString);
+			sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.substring(8)).toISOString();
 
 			// sunset
-			sunset = timeStringToDate(getElementFromTestId("SunsetValue").textContent.substring(6) + " " + timezone).toISOString();
+			sunset = timeStringToDate(getElementFromTestId("SunsetValue").textContent.substring(6)).toISOString();
 
 			// temperature, high, low
 			const temperatureElements = getAllElementsFromTestId("TemperatureValue", getElementFromTestId("CurrentConditionsContainer"));
@@ -91,7 +100,6 @@ export default async function getWeather(req, res) {
 
 				switch (todaysDetailsLabels[i].textContent) {
 					case "Humidity": {
-
 						humidity = parseInt(valueElement.textContent, 10) / 100;
 						break;
 					}

@@ -122,7 +122,7 @@ export default async function Page() {
 						</tr>
 						<tr>
 							<td>timezone</td>
-							<td>The timezone reported in its abbreviated form. For example, "EST" or "UTC."</td>
+							<td>The timezone reported in TZ identifier or "Area/Location" form. For example, "Europe/Paris" or "America/New_York."</td>
 							<td>String</td>
 						</tr>
 						<tr>
