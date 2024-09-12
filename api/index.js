@@ -2,6 +2,9 @@ const { JSDOM } = require("jsdom");
 const { find } = require("geo-tz/now");
 
 export default async function getWeather(req, res) {
+	// CORS allow all to make this a public API
+	res.setHeader("Access-Control-Allow-Origin", "*");
+
 	const { searchParams } = new URL(process.env.NEXT_PUBLIC_PROCESSING_SERVER + req.url);
 
 	const latitude = searchParams.get("latitude");
@@ -77,7 +80,6 @@ export default async function getWeather(req, res) {
 			timeUpdated = timeStringToDate(timeUpdatedString).toISOString();
 
 			// sunrise
-			console.log(timeUpdatedString);
 			sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.substring(8)).toISOString();
 
 			// sunset

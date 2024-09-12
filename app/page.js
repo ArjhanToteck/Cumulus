@@ -1,8 +1,10 @@
+"use client";
+
 import CodeBlock from "/src/components/CodeBlock.js";
 
 export default async function Page() {
 
-	const response = await fetch(`${process.env.NEXT_PUBLIC_SOCKETIO_SERVER}/api/projects/cumulus?latitude=39.947969&longitude=-75.195000`);
+	const response = await fetch(`${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=39.947969&longitude=-75.195000`);
 	const weatherData = await response.json();
 
 	return (
@@ -16,12 +18,12 @@ export default async function Page() {
 				The weather outside of the University of Pennsylvania in Philadelphia is {weatherData.description.toLowerCase()}. The temperature is {weatherData.temperature} degrees Fahrenheit.
 
 				<h2>Endpoint</h2>
-				<p>Simply make an HTTP request to {process.env.NEXT_PUBLIC_SOCKETIO_SERVER}/api/projects/cumulus?latitude=LATITUDE&longitude=LONGITUDE and read the data as a JSON. Obviously, make sure to replace LATITUDE and LONGITUDE with an actual valid latitude and longitude.</p>
+				<p>Simply make an HTTP request to {process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=LATITUDE&longitude=LONGITUDE and read the data as a JSON. Obviously, make sure to replace LATITUDE and LONGITUDE with an actual valid latitude and longitude.</p>
 
 				<p>In JavaScript, for example:</p>
 
 				<CodeBlock code={
-					`fetch("${process.env.NEXT_PUBLIC_SOCKETIO_SERVER}/api/projects/cumulus?latitude=LATITUDE&longitude=LONGITUDE")` + "\n" +
+					`fetch("${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=LATITUDE&longitude=LONGITUDE")` + "\n" +
 					`	.then((response) => response.json())` + "\n" +
 					`	.then(console.log);`
 				} />
