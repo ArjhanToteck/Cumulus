@@ -4,6 +4,8 @@ const { find } = require("geo-tz/now");
 export default async function getWeather(req, res) {
 	// CORS allow all to make this a public API
 	res.setHeader("Access-Control-Allow-Origin", "*");
+	// json header
+	res.setHeader("Content-Type", "application/json");
 
 	const { searchParams } = new URL(process.env.NEXT_PUBLIC_PROCESSING_SERVER + req.url);
 
