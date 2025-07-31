@@ -34,10 +34,18 @@ export default async function getWeather(req, res) {
 
 			// helper functions for getting elements
 			const getElementFromTestId = (testId, parent = htmlDocument.window.document) => {
+				if (parent == null) {
+					return "error";
+				}
+
 				return parent.querySelector(`[data-testid="${testId}"]`);
 			};
 
 			const getAllElementsFromTestId = (testId, parent = htmlDocument.window.document) => {
+				if (parent == null) {
+					return "error";
+				}
+
 				return parent.querySelectorAll(`[data-testid="${testId}"]`);
 			};
 
@@ -58,8 +66,12 @@ export default async function getWeather(req, res) {
 			// get first rain chance element
 			const firstRainElement = getElementFromTestId("SegmentPrecipPercentage", getElementFromTestId("DailyWeatherModule"));
 
-			// extract number, parse, and convert from percentage to decimal
-			rainChance = parseInt(firstRainElement.textContent.match(/\d+/)[0], 10) / 100;
+			if (firstRainElement.textContent) {
+				// extract number, parse, and convert from percentage to decimal
+				rainChance = parseInt(firstRainElement.textContent.match(/\d+/)[0], 10) / 100;
+			} else {
+				rainChance = 0;
+			}
 
 			// time stuff
 
@@ -73,19 +85,23 @@ export default async function getWeather(req, res) {
 			};
 
 			// time updated
-			let timeUpdatedString = getElementFromTestId("CurrentConditionsContainer").getElementsByTagName("span")[0].textContent;
+			let timeUpdatedString = htmlDocument.window.document.getElementsByClassName("CurrentConditions--timestamp--LqnOd")[0].textContent;
 
-			// remove "As of" and timezone abbreviation from timeUpdatedString
-			timeUpdatedString = timeUpdatedString.match(/(\d{1,2}:\d{2}\s?[ap]m)/i)[0];
+			if (timeUpdatedString) {
+				// remove "As of" and timezone abbreviation from timeUpdatedString
+				timeUpdatedString = timeUpdatedString.match(/(\d{1,2}:\d{2}\s?[ap]m)/i)[0];
 
-			// convert to date
-			timeUpdated = timeStringToDate(timeUpdatedString).toISOString();
+				// convert to date
+				timeUpdated = timeStringToDate(timeUpdatedString).toISOString();
+			} else {
+				timeUpdated = "error";
+			}
 
 			// sunrise
-			sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.substring(8)).toISOString();
+			sunrise = timeStringToDate(getElementFromTestId("SunriseValue").textContent.match(/(\d{1,2}:\d{2}\s?[ap]m)/i)[0]).toISOString();
 
 			// sunset
-			sunset = timeStringToDate(getElementFromTestId("SunsetValue").textContent.substring(6)).toISOString();
+			sunset = timeStringToDate(getElementFromTestId("SunsetValue").textContent.match(/(\d{1,2}:\d{2}\s?[ap]m)/i)[0]).toISOString();
 
 			// temperature, high, low
 			const temperatureElements = getAllElementsFromTestId("TemperatureValue", getElementFromTestId("CurrentConditionsContainer"));
@@ -123,7 +139,7 @@ export default async function getWeather(req, res) {
 						windSpeed = parseInt(valueElement.textContent.substring(14), 10);
 
 						// wind direction
-						let windDirectionElement = getElementFromTestId("Icon", valueElement);
+						let windDirectionElement = getElementFromTestId("WindDirectionIcon", valueElement);
 						windDirection = parseFloat(windDirectionElement.style.transform.substring(7));
 						break;
 					}
