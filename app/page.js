@@ -4,7 +4,10 @@ import CodeBlock from "/src/components/CodeBlock.js";
 
 export default async function Page() {
 
-	const response = await fetch(`${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=39.947969&longitude=-75.195000`);
+	const response = await fetch(
+		`${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=39.947969&longitude=-75.195000`,
+		{ cache: "no-store" }
+	);
 	const weatherData = await response.json();
 
 	return (
