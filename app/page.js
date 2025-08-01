@@ -1,14 +1,31 @@
 "use client";
 
 import CodeBlock from "/src/components/CodeBlock.js";
+import { useEffect, useState } from "react";
 
-export default async function Page() {
+export default function Page() {
+	const [weatherData, setWeatherData] = useState({ description: "(loading...)", temperature: "(loading...)" });
 
-	const response = await fetch(
-		`${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=39.947969&longitude=-75.195000`,
-		{ cache: "no-store" }
-	);
-	const weatherData = await response.json();
+	useEffect(() => {
+		async function fetchData() {
+			try {
+				const response = await fetch(
+					`${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=39.947969&longitude=-75.195000`,
+					{ cache: "no-store" }
+				);
+
+				if (!response.ok) {
+					throw new Error("Network response was not ok.");
+				}
+
+				const data = await response.json();
+				setWeatherData(data);
+			} catch (err) {
+				setError(err.message);
+			}
+		}
+		fetchData();
+	}, []);
 
 	return (
 		<main>
@@ -26,7 +43,7 @@ export default async function Page() {
 				<p>In JavaScript, for example:</p>
 
 				<CodeBlock code={
-					`fetch("${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=LATITUDE&longitude=LONGITUDE")` + "\n" +
+					`fetch("${process.env.NEXT_PUBLIC_PROCESSING_SERVER}/api/projects/cumulus?latitude=39.947969&longitude=-75.195000")` + "\n" +
 					`	.then((response) => response.json())` + "\n" +
 					`	.then(console.log);`
 				} />
