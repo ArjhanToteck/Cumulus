@@ -136,7 +136,7 @@ export default async function getWeather(req, res) {
 
 					case "Wind": {
 						// wind speed
-						windSpeed = parseInt(valueElement.textContent.substring(14), 10);
+						windSpeed = parseInt(valueElement.textContent.substring(5), 10);
 
 						// wind direction
 						let windDirectionElement = getElementFromTestId("WindDirectionIcon", valueElement);
