@@ -1,6 +1,6 @@
 "use client";
 
-import CodeBlock from "/src/components/CodeBlock.js";
+import CodeBlock from "@/src/components/CodeBlock.js";
 import { useEffect, useState } from "react";
 
 export default function Page() {
