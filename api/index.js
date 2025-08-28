@@ -2,7 +2,7 @@
 const { JSDOM } = require("jsdom");
 const { find } = require("geo-tz/now");
 
-export default async function getWeather(req, res) {
+export default async function handler(req, res) {
 	// CORS allow all to make this a public API
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	// json header
