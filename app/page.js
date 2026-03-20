@@ -169,7 +169,6 @@ export default function Page() {
 						</tr>
 					</tbody>
 				</table>
-				<br></br>
 			</section>
 		</main>
 	);
